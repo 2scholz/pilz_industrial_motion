@@ -104,9 +104,11 @@ bool pilz::PlanningContextBase<GeneratorT>::solve(planning_interface::MotionPlan
     // Use current state as start state if not set
     if(request_.start_state.joint_state.name.size() == 0)
     {
-      moveit_msgs::RobotState currentState;
-      moveit::core::robotStateToRobotStateMsg(getPlanningScene()->getCurrentState(), currentState);
-      request_.start_state = currentState;
+      robot_state::RobotState currentState = getPlanningScene()->getCurrentState();
+      currentState.harmonizePositions();
+      moveit_msgs::RobotState currentStateMsg;
+      moveit::core::robotStateToRobotStateMsg(currentState, currentStateMsg);
+      request_.start_state = currentStateMsg;
     }
     bool result = generator_.generate(request_, res);
     return result;
