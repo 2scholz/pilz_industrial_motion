@@ -202,7 +202,7 @@ bool CommandListManager::validateBlendingRadiiDoNotOverlap(
                                  traj_2->getLastWayPoint().getFrameTransform(getTipFrame(group_name)).translation())
                                 .norm();
 
-      if(distance_endpoints <= (radii.at(i) + radii.at(i+1)))
+      if(distance_endpoints < (radii.at(i) + radii.at(i+1)))
       {
         ROS_ERROR_STREAM("Overlapping blend radii between command [" << i << "] and [" << i+1 << "].");
         return false;
