@@ -200,12 +200,19 @@ bool TrajectoryGenerator::validateStartState(const planning_interface::MotionPla
     return false;
   }
 
-  if(!planner_limits_.getJointLimitContainer().verifyPositionLimits(req.start_state.joint_state.name,
-                                                                    req.start_state.joint_state.position))
+  const moveit::core::JointModelGroup* jmg = robot_model_->getJointModelGroup(req.group_name);
+  for(size_t i = 0; i < req.start_state.joint_state.name.size(); ++i)
   {
-    ROS_ERROR("Joint state out of range in start state.") ;
-    error_code.val = moveit_msgs::MoveItErrorCodes::INVALID_ROBOT_STATE;
-    return false;
+    if(jmg->hasJointModel(req.start_state.joint_state.name[i]))
+    {
+      if(!planner_limits_.getJointLimitContainer().verifyPositionLimit(req.start_state.joint_state.name[i],
+                                                                       req.start_state.joint_state.position[i]))
+      {
+        ROS_ERROR("Joint state out of range in start state.") ;
+        error_code.val = moveit_msgs::MoveItErrorCodes::INVALID_ROBOT_STATE;
+        return false;
+      }
+    }
   }
 
   // does not allow start velocity
